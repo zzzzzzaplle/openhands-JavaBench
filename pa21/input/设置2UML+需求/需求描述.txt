@@ -1,0 +1,17 @@
+1.Overview
+This project implements a grid-based puzzle game called Inertia. The core mechanic is inertial sliding: once the player chooses a direction, the character slides continuously in that direction until it hits a Wall or enters a StopCell. The objective is to navigate the board to collect all Gems while avoiding Mines that cause death and life loss. The game features a scoring system, life management, and an Undo system to backtrack moves.
+2.Functional Requirements
+The system manages 2D grid coordinates and their deltas through the Position and PositionOffset classes for all
+movement calculations and boundary checks. In GameBoardController.makeMove, when a move is initiated via a Direction,
+the player piece moves step-by-step from its current Position. If the player passes through a Gem or ExtraLife, these
+are collected and removed from the board. Sliding stops immediately before a Wall, at the board boundary, or exactly
+on a StopCell. StopCell is a special cell type that can only contain a Player entity. Hitting a Mine causes a Dead
+result, stops movement, and reverts the player's position to the original position before the move. A move returns
+Invalid when the player cannot move at all (blocked by Wall or boundary on the first step, resulting in zero movement
+distance). Every move must return a MoveResult (Alive, Dead, or Invalid) to record the outcome and collected entities.
+In GameState, a player wins when the number of collected gems equals the initial total. A player loses when lives
+reach zero (unless in unlimited lives mode). The score is calculated as: Score = InitialBoardSize + (Gems * 10) -
+(Moves * 1) - (Undoes * 2) - (Deaths * 4). If numLives is less than zero, the player has unlimited lives, and
+getNumLives returns Integer.MAX_VALUE. In GameController and MoveStack, Only MoveResult.Valid.Alive is pushed to MoveStack and is undoable. Dead and Invalid are never pushed.
+GameStateSerializer: A tool for loading/saving the game state from/to text format, handling the mapping between characters (W, P, S, G, M, L) and Ecore classes. 
+InertiaTextGame: The main runner handling the STDIN loop and parsing user commands like U, D, Undo, or Quit. 

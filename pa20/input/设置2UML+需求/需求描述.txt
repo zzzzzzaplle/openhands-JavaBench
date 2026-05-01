@@ -1,0 +1,89 @@
+ Overview
+
+  This project implements a customized board game called JesonMor. It is a turn-based, two-player game played on a
+  square grid board of odd size (e.g., 9x9). The game features two types of pieces: Knight and Archer, each with unique
+  movement and capture mechanics inspired by Western and Chinese chess. Players take turns moving their pieces,
+  accumulating a score based on the Manhattan distance of each move. The game incorporates a rule-based validation
+  pipeline to ensure all moves are legal. The game also includes a protection phase for the first N moves where
+  capturing is prohibited. The system provides the core game loop, piece movement logic, and rule validations.
+
+  Functional Requirements
+
+  Game Control and Loop (JesonMor)
+
+  Game Initialization: The game starts by loading a Configuration which provides the board size (must be odd), initial
+  piece placements, players, central place (located at size/2, size/2), and the number of protected moves.
+
+  Turn-Based Execution: Implement a continuous game loop where players take turns sequentially. In each turn, fetch the
+  available moves for the current player, prompt the player to make a choice (via Player.nextMove), execute the move,
+  update the player's score, and refresh the console output.
+
+  Move Execution: When a move is executed, the piece at the source square must be moved to the destination square on the
+   2D board array. The source square becomes empty (null).
+
+  Score Calculation: After a successful move, the current player's score increases by the Manhattan distance between the
+   source and destination squares. A move is executed and scored only if it passes all applicable rules; otherwise the board state and scores remain
+  unchanged for that attempt.
+
+  Win Condition: After each move, evaluate if a player has won. No winner can be declared within the first
+  numMovesProtection moves (Protection phase: capturing is prohibited and the normal win conditions are not evaluated, but the game loop still
+  proceeds and moves are counted). After protection, a player wins
+   if either:
+  1. A Knight leaves the central square (source is central place and destination is not central place), or
+  2. Only one player's pieces remain on the board (all opponent pieces have been captured).
+
+  Additionally, if a player has no available moves on their turn, the game ends and the winner is decided by score
+  comparison: the player with higher score wins; if scores are equal, the current player wins.
+
+  Piece Movement Logic (Knight and Archer)
+
+  Knight: Moves in an L shape (two squares in one direction, one in the orthogonal direction). However, unlike Western
+  chess, it can be blocked by an adjacent piece in its primary direction of movement (similar to the Horse in Chinese
+  chess). Specifically, if the Knight moves 2 squares horizontally and 1 square vertically, the blocking square is at
+  ((source.x + destination.x) / 2, source.y); if it moves 1 square horizontally and 2 squares vertically, the blocking
+  square is at (source.x, (source.y + destination.y) / 2). The move is invalid if any piece occupies this intermediate
+  square.
+
+  Archer: Moves any distance orthogonally without jumping. For non-capturing moves, the path between source and
+  destination must be completely clear (no pieces in between). For capturing moves, there must be exactly one piece (of
+  any color) between the source and destination, which serves as the "screen" or "mount" for the capture (similar to the
+   Cannon in Chinese chess).
+
+  Move Generation: Each piece generates candidate moves from its current position, then filters them by applying global
+  and piece-specific validation rules.For human input, ConsolePlayer.nextMove validates the chosen move with the rule pipeline and returns the first
+  violated rule’s description when invalid.
+
+  Piece Labels: Knight displays as 'K', Archer displays as 'A'.
+
+  Rule Validation System (Rule Implementations)
+
+  Every move must be validated against a set of rules. A move is only valid if it passes all applicable rules.
+
+  Global Rules: Source must not be vacant (VacantRule), source and destination must differ (NilMoveRule), source and
+  destination must be within board limits (OutOfBoundaryRule), and destination cannot contain a friendly piece
+  (OccupiedRule).
+
+  Protection Rule: During the first numMovesProtection turns of the game, no piece can be captured
+  (FirstNMovesProtectionRule). The protection phase also prevents win condition evaluation.
+
+  Piece-Specific Rules: Knight moves must conform to its L shape and blocking constraints (KnightMoveRule,
+  KnightBlockRule). Archer moves must conform to its orthogonal sliding and jumping capture constraints
+  (ArcherMoveRule).
+
+  Board Display and Coordinates
+
+  The board uses a coordinate system where columns are labeled with letters (a, b, c, ...) and rows are labeled with
+  numbers (1, 2, 3, ...), both starting from the bottom-left corner. User input format is "source->destination" (e.g.,
+  "a1->b2"). Empty squares display as '.', and the central square (when empty) displays as 'x'. Pieces display with
+  their color and label (e.g., a red Knight displays as a red 'K').
+
+  External Knowledge and Tools
+
+  The following infrastructure classes and tools are already fully implemented in the project but are NOT included in
+  the Ecore model. You can invoke them directly when generating code:
+
+  MoveRecord: An independent data class that records a player and their move, with methods such as getPlayer() and
+  getMove(). It is available as a utility type (not required by the current JesonMor core loop).
+
+  InvalidConfigurationError: A custom error class located in assignment.protocol.exception. Throw this when encountering
+   invalid initialization parameters.

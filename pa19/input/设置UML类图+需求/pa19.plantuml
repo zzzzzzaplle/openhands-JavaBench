@@ -1,0 +1,159 @@
+@startuml
+interface MapElement {
+  + toSingleChar() : char
+}
+
+enum Direction {
+  UP
+  DOWN
+  LEFT
+  RIGHT
+  + getOpposite() : Direction
+  + getOffset() : Coordinate
+}
+
+enum TerminationType {
+  SOURCE
+  SINK
+}
+
+enum PipeShape {
+  HORIZONTAL
+  VERTICAL
+  TOP_LEFT
+  TOP_RIGHT
+  BOTTOM_LEFT
+  BOTTOM_RIGHT
+  CROSS
+  ==
+  ~ filledChar : char
+  ~ unfilledChar : char
+  --
+  ~ PipeShape(filled : char, unfilled : char)
+  ~ getCharByState(isFilled : boolean) : char
+}
+
+class Coordinate {
+  + row : int
+  + col : int
+  + equals(obj : Object) : boolean
+  + add(other : Coordinate) : Coordinate
+}
+
+class DelayBar {
+  - initialValue : int
+  - currentValue : int
+  + countdown() : void
+  + distance() : int
+  + display() : void
+}
+
+abstract class Cell {
+  + coord : Coordinate
+  + {static} fromChar(c : char, coord : Coordinate, terminationType : TerminationType) : Cell
+}
+
+class FillableCell {
+  - pipe : Pipe
+  + getPipe() : Optional<Pipe>
+  + setPipe(pipe : Pipe) : void
+  + toSingleChar() : char
+}
+
+class TerminationCell {
+  - isFilled : boolean
+
+  + pointingTo : Direction
+  + type : TerminationType
+  + setFilled() : void
+  + toSingleChar() : char
+}
+
+class TerminationCellCreateInfo {
+  + coord : Coordinate
+  + dir : Direction
+}
+
+class Wall {
+  + toSingleChar() : char
+}
+
+class Pipe {
+  - shape : PipeShape
+  + getShape() : PipeShape
+  + toSingleChar() : char
+}
+
+class Map {
+  - rows : int
+  - cols : int
+  + cells : Cell[][]
+  - sourceCell : TerminationCell
+  - sinkCell : TerminationCell
+  - filledTiles : Set
+  - prevFilledTiles : int
+  - prevFilledDistance : Integer
+  + {static} fromString(rows : int, cols : int, cellsRep : String) : Map
+  + tryPlacePipe(coord : Coordinate, pipe : Pipe) : boolean
+  + tryPlacePipe(row : int, col : int, p : Pipe) : boolean
+  + display() : void
+  + undo(coord : Coordinate) : void
+  + fillBeginTile() : void
+  + fillTiles(distance : int) : void
+  + checkPath() : boolean
+  + hasLost() : boolean
+}
+
+class CellStack {
+  - cellStack : Stack<FillableCell>
+  - count : int
+  + push(cell : FillableCell) : void
+  + pop() : FillableCell
+  + getUndoCount() : int
+  + display() : void
+}
+
+class PipeQueue {
+  - {static} MAX_GEN_LENGTH : int
+  - pipeQueue : LinkedList<Pipe>
+  + peek() : Pipe
+  + consume() : void
+  + undo(pipe : Pipe) : void
+  + display() : void
+  - {static} generateNewPipe() : Pipe
+}
+
+class Game {
+
+}
+
+MapElement <|.. Cell
+MapElement <|.. Pipe
+
+Cell <|-- FillableCell
+Cell <|-- TerminationCell
+Cell <|-- Wall
+
+TerminationCell +-- TerminationCellCreateInfo
+Pipe +-- PipeShape
+
+Cell "1" *-- "1" Coordinate : coord
+FillableCell "1" o-- "0..1" Pipe : pipe
+TerminationCell "1" *-- "1" Direction : pointingTo
+TerminationCell "1" *-- "1" TerminationType : type
+
+Map "1" *-- "*" Cell : cells
+Map "1" o-- "1" TerminationCell : sourceCell
+Map "1" o-- "1" TerminationCell : sinkCell
+
+CellStack "1" o-- "*" FillableCell : cellStack
+PipeQueue "1" o-- "*" Pipe : pipeQueue
+
+Game "1" *-- "1" Map : map
+Game "1" *-- "1" CellStack : cellStack
+Game "1" *-- "1" PipeQueue : pipeQueue
+Game "1" *-- "1" DelayBar : delayBar
+
+
+
+@enduml

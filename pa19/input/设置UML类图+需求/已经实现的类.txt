@@ -1,0 +1,151 @@
+Map.fromString:
+ static Map fromString(int rows, int cols, String cellsRep) {
+        Cell[][] cells = Deserializer.parseString(rows, cols, cellsRep);
+        return new Map(rows, cols, cells);
+    }
+Map.tryPlacePipe:
+ public boolean tryPlacePipe(final Coordinate coord, final Pipe pipe) {
+        return tryPlacePipe(coord.row, coord.col, pipe);
+    }
+Map.display:
+public void display() {
+        final int padLength = Integer.valueOf(rows - 1).toString().length();
+
+        Runnable printColumns = () -> {
+            System.out.print(StringUtils.createPadding(padLength, ' '));
+            System.out.print(' ');
+            for (int i = 0; i < cols - 2; ++i) {
+                System.out.print((char) ('A' + i));
+            }
+            System.out.println();
+        };
+
+        printColumns.run();
+
+        for (int i = 0; i < rows; ++i) {
+            if (i != 0 && i != rows - 1) {
+                System.out.print(String.format("%1$" + padLength + "s", i));
+            } else {
+                System.out.print(StringUtils.createPadding(padLength, ' '));
+            }
+
+            Arrays.stream(cells[i]).forEachOrdered(elem -> System.out.print(elem.toSingleChar()));
+
+            if (i != 0 && i != rows - 1) {
+                System.out.print(i);
+            }
+
+            System.out.println();
+        }
+
+        printColumns.run();
+    }
+Map.fillBeginTile
+  public void fillBeginTile() {
+        sourceCell.setFilled();
+    }
+    
+CellStack.display
+  void display() {
+        System.out.println("Undo Count: " + count);
+    }
+    
+ PipeShape {
+        HORIZONTAL(PipePatterns.Filled.HORIZONTAL, PipePatterns.Unfilled.HORIZONTAL),
+        VERTICAL(PipePatterns.Filled.VERTICAL, PipePatterns.Unfilled.VERTICAL),
+        TOP_LEFT(PipePatterns.Filled.TOP_LEFT, PipePatterns.Unfilled.TOP_LEFT),
+        TOP_RIGHT(PipePatterns.Filled.TOP_RIGHT, PipePatterns.Unfilled.TOP_RIGHT),
+        BOTTOM_LEFT(PipePatterns.Filled.BOTTOM_LEFT, PipePatterns.Unfilled.BOTTOM_LEFT),
+        BOTTOM_RIGHT(PipePatterns.Filled.BOTTOM_RIGHT, PipePatterns.Unfilled.BOTTOM_RIGHT),
+        CROSS(PipePatterns.Filled.CROSS, PipePatterns.Unfilled.CROSS)
+      //.....
+    }
+DelayBar.display:
+void display() {
+        if (currentValue > 0) {
+            System.out.print("Rounds Countdown: ");
+            System.out.print(StringUtils.createPadding(currentValue, '='));
+            System.out.print(StringUtils.createPadding(initialValue - currentValue, ' '));
+            System.out.print(" " + currentValue);
+            System.out.println();
+        } else {
+            System.out.println();
+        }
+    }
+ Game.fromString:
+  static Game fromString(int rows, int cols, int delay, String cellsRep, List<Pipe> pipes) {
+        Cell[][] cells = Deserializer.parseString(rows, cols, cellsRep);
+        return new Game(rows, cols, delay, cells, pipes);
+    }
+ Game.display:
+   public void display() {
+        map.display();
+        System.out.println();
+        pipeQueue.display();
+        cellStack.display();
+        System.out.println();
+        delayBar.display();
+    }
+    
+    PipeQueue.display:
+    void display() {
+        System.out.print("Next Pipes:  ");
+        for (Pipe p : pipeQueue) {
+            System.out.print(p.toSingleChar() + "    ");
+        }
+        System.out.println();
+    }
+
+
+------Coordinate.java Start --------
+
+import java.util.Objects;
+
+/**
+ * Representation of a coordinate in {@link game.map.Map}.
+ */
+public class Coordinate {
+
+    public final int row;
+    public final int col;
+
+    public Coordinate(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Coordinate)) {
+            return false;
+        }
+
+        return equals((Coordinate) obj);
+    }
+
+    public boolean equals(Coordinate other) {
+        return this.row == other.row && this.col == other.col;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col);
+    }
+
+    /**
+     * Adds {@code this} coordinate with another coordinate.
+     *
+     * @param other Other coordinate to add from.
+     * @return New coordinate as a result of the addition.
+     */
+    public Coordinate add(Coordinate other) {
+        return new Coordinate(this.row + other.row, this.col + other.col);
+    }
+}
+------Coordinate.java End --------
