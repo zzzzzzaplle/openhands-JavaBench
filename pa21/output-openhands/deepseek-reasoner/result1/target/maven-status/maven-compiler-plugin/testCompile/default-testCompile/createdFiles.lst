@@ -1,0 +1,6 @@
+GameControllerTest.class
+MoveStackTest.class
+GameStateTest.class
+GameBoardControllerTest.class
+GameStateSerializerTest.class
+PositionTest.class
