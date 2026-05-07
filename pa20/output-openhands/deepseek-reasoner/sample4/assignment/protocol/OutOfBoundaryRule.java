@@ -1,0 +1,22 @@
+package assignment.protocol;
+
+/**
+ * Rule that ensures both source and destination places are within the game board boundaries.
+ */
+public class OutOfBoundaryRule implements Rule {
+    @Override
+    public boolean validate(Game game, Move move) {
+        int size = game.getConfiguration().getSize();
+        Place source = move.getSource();
+        Place dest = move.getDestination();
+        return source.x() >= 0 && source.x() < size &&
+                source.y() >= 0 && source.y() < size &&
+                dest.x() >= 0 && dest.x() < size &&
+                dest.y() >= 0 && dest.y() < size;
+    }
+
+    @Override
+    public String getDescription() {
+        return "place is out of boundary of gameboard";
+    }
+}
