@@ -1,0 +1,19 @@
+package assignment;
+
+import java.util.Random;
+
+public class RandomPlayer extends Player {
+    private static final Random random = new Random();
+
+    public RandomPlayer(String name, Color color) {
+        super(name, color);
+    }
+
+    @Override
+    public Move nextMove(Game game, Move[] availableMoves) {
+        if (availableMoves.length == 0) {
+            return null;
+        }
+        return availableMoves[random.nextInt(availableMoves.length)];
+    }
+}
